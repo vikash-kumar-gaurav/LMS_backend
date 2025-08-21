@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model course {
+  id         String       @id @db.Uuid
+  title      String
+  price      Decimal
+  creatorId  String       @db.Uuid
+  user       user         @relation(fields: [creatorId], references: [id])
+  enrollment enrollment[]
+  like       like[]
+  tag        tag[]        @relation("CourseTags")
+}
+
+model enrollment {
+  id       String @id @db.Uuid
+  userId   String @db.Uuid
+  courseId String @db.Uuid
+  course   course @relation(fields: [courseId], references: [id])
+  user     user   @relation(fields: [userId], references: [id])
+
+  @@unique([userId, courseId])
+}
+
+model like {
+  id       String @id @db.Uuid
+  userId   String @db.Uuid
+  courseId String @db.Uuid
+  course   course @relation(fields: [courseId], references: [id])
+  user     user   @relation(fields: [userId], references: [id])
+
+  @@unique([userId, courseId])
+}
+
+model tag {
+  id     String   @id @db.Uuid
+  name   String
+  course course[] @relation("CourseTags")
+}
+
+model user {
+  id          String       @id @db.Uuid
+  email       String       @unique
+  profile_pic String?
+  role        Role         @default(USER)
+  mobile_no   String?
+  full_name   String
+  password    String
+  course      course[]
+  enrollment  enrollment[]
+  like        like[]
+}
+
+enum Role {
+  FACULTY
+  ADMIN
+  USER
+}
