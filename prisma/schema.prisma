@@ -9,7 +9,7 @@ datasource db {
 }
 
 model course {
-  id         String       @id @db.Uuid
+  id         String       @id @default(uuid()) @db.Uuid
   title      String
   price      Decimal
   creatorId  String       @db.Uuid
@@ -20,7 +20,7 @@ model course {
 }
 
 model enrollment {
-  id       String @id @db.Uuid
+  id       String @id @default(uuid()) @db.Uuid
   userId   String @db.Uuid
   courseId String @db.Uuid
   course   course @relation(fields: [courseId], references: [id])
@@ -30,7 +30,7 @@ model enrollment {
 }
 
 model like {
-  id       String @id @db.Uuid
+  id       String @id @default(uuid()) @db.Uuid
   userId   String @db.Uuid
   courseId String @db.Uuid
   course   course @relation(fields: [courseId], references: [id])
@@ -40,13 +40,13 @@ model like {
 }
 
 model tag {
-  id     String   @id @db.Uuid
+  id     String   @id @default(uuid()) @db.Uuid
   name   String
   course course[] @relation("CourseTags")
 }
 
 model user {
-  id          String       @id @db.Uuid
+  id          String       @id @default(uuid()) @db.Uuid
   email       String       @unique
   profile_pic String?
   role        Role         @default(USER)
