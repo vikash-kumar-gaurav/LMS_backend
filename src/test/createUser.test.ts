@@ -4,7 +4,7 @@ async function run() {
     // test input
     const input = {
       full_name: "Test User",
-      email: "testuser@example.com",
+      email: "testuse4r@example.com",
       password: "password123",
     };
 

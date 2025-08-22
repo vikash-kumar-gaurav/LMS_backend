@@ -6,6 +6,11 @@ export interface CreateUserInput{
     password: string;
     email :string;
 }
+
+export interface LoginUserInput {
+    email :string;
+    password : string;
+}
 export const CreateUser = async (input: CreateUserInput) => {
     const { full_name, password, email } = input;
 
@@ -22,4 +27,25 @@ export const CreateUser = async (input: CreateUserInput) => {
 
     const { password:_, ...userDataWithoutPassword} = userData
     return userDataWithoutPassword as any;
+};
+
+export const LoginUser = async(input:LoginUserInput) => {
+    const { email, password} = input
+    const user = await db.user.findUnique({
+        where:{
+            email
+        }
+    });
+
+    if(!user){
+        throw new Error("No user Found")
+    };
+
+    const checkPassword = await bcrypt.compare(password,user.password);
+
+    if(!checkPassword){
+        throw new Error("Invalid password")
+    }
+
+    return user
 }
