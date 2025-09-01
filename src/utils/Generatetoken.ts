@@ -1,11 +1,11 @@
 import * as jwt from "jsonwebtoken";
 
 export async function generateAccessToken(userId:string) {
-    const token = jwt.sign(userId, process.env.ACCESSTOKENPRIVATE_KEY!,{expiresIn:"2hr"});
+    const token = jwt.sign({userId}, process.env.ACCESSTOKENPRIVATE_KEY!, { expiresIn:"2h" });
     return token
 } 
 
 export async function generateRefreshToken(userId:string) {
-    const token = jwt.sign(userId, process.env.REFRESHTOKENPRIVATE_KEY!, { expiresIn: "24h" });
+    const token = jwt.sign({userId}, process.env.REFRESHTOKENPRIVATE_KEY!, { expiresIn:"24h" });
     return token
 }

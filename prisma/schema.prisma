@@ -8,58 +8,116 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model course {
-  id         String       @id @default(uuid()) @db.Uuid
-  title      String
-  price      Decimal
-  creatorId  String       @db.Uuid
-  user       user         @relation(fields: [creatorId], references: [id])
-  enrollment enrollment[]
-  like       like[]
-  tag        tag[]        @relation("CourseTags")
-}
 
-model enrollment {
-  id       String @id @default(uuid()) @db.Uuid
-  userId   String @db.Uuid
-  courseId String @db.Uuid
-  course   course @relation(fields: [courseId], references: [id])
-  user     user   @relation(fields: [userId], references: [id])
 
-  @@unique([userId, courseId])
-}
 
-model like {
-  id       String @id @default(uuid()) @db.Uuid
-  userId   String @db.Uuid
-  courseId String @db.Uuid
-  course   course @relation(fields: [courseId], references: [id])
-  user     user   @relation(fields: [userId], references: [id])
-
-  @@unique([userId, courseId])
-}
-
-model tag {
-  id     String   @id @default(uuid()) @db.Uuid
-  name   String
-  course course[] @relation("CourseTags")
-}
-
-model user {
-  id          String       @id @default(uuid()) @db.Uuid
-  email       String       @unique
-  profile_pic String?
-  role        Role         @default(USER)
-  mobile_no   String?
+model User {
+  id          String        @id @default(uuid()) @db.Uuid
+  email       String        @unique
   full_name   String
   password    String
-  course      course[]
-  enrollment  enrollment[]
-  like        like[]
+  profile_pic String?
+  mobile_no   String?
+  role        Role          @default(USER)
+
+  // Relations
+  course      Course[]      
+  enrollment  Enrollment[]
+  like        Like[]
+
+  @@map("user")
 }
 
 enum Role {
   FACULTY
   ADMIN
   USER
+}
+
+
+
+model Course {
+  id         String        @id @default(uuid()) @db.Uuid
+  title      String
+  price      Decimal
+  creatorId  String        @db.Uuid
+  thumbnail_url String      @default("https://res.cloudinary.com/dcnp0gkrx/image/upload/v1755872612/4f95e7dc-e5b7-4c74-96e4-7e23e3125bfd.png")
+
+
+  // Relations
+  creator    User          @relation(fields: [creatorId], references: [id])
+  chapters   Chapter[]
+  enrollment Enrollment[]
+  like       Like[]
+  tags       Tag[]         @relation("CourseTags")
+
+  @@map("course")
+}
+
+
+
+model Chapter {
+  id        String   @id @default(uuid()) @db.Uuid
+  title     String
+  index     Int?     
+  courseId  String   @db.Uuid
+
+  // Relations
+  course    Course   @relation(fields: [courseId], references: [id])
+  lessons   Lesson[]
+
+  @@map("chapter")
+}
+
+model Lesson {
+  id        String   @id @default(uuid()) @db.Uuid
+  title     String
+  content   String?   // optional, can hold text/description
+  videoUrl  String?   // optional video link
+  thumbnail_url String  @default("https://res.cloudinary.com/dcnp0gkrx/image/upload/v1755872612/4f95e7dc-e5b7-4c74-96e4-7e23e3125bfd.png")
+  index     Int?      // order inside the chapter
+  chapterId String    @db.Uuid
+
+  // Relations
+  chapter   Chapter   @relation(fields: [chapterId], references: [id])
+
+  @@map("lesson")
+}
+
+
+model Enrollment {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  courseId  String   @db.Uuid
+  createdAt DateTime @default(now())
+
+  // Relations
+  course    Course   @relation(fields: [courseId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, courseId])
+  @@map("enrollment")
+}
+
+model Like {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  courseId  String   @db.Uuid
+
+  // Relations
+  course    Course   @relation(fields: [courseId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, courseId])
+  @@map("like")
+}
+
+model Tag {
+  id     String    @id @default(uuid()) @db.Uuid
+  name   String
+
+  // Relations
+  course Course[]  @relation("CourseTags")
+
+  @@map("tag")
 }

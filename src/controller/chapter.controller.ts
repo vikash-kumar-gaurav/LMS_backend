@@ -1,0 +1,1 @@
+export const CreateNewChapter = (req:Request, res:Res)

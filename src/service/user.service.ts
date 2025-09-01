@@ -1,5 +1,6 @@
 import { db } from "../config/PrismaDbSetup";
 import * as bcrypt from 'bcrypt'
+import { LoginUserInput } from "../zodSchemas/LoginSchema";
 
 export interface CreateUserInput{
     full_name : string;
@@ -7,12 +8,20 @@ export interface CreateUserInput{
     email :string;
 }
 
-export interface LoginUserInput {
-    email :string;
-    password : string;
-}
+
 export const CreateUser = async (input: CreateUserInput) => {
     const { full_name, password, email } = input;
+
+    //checking if user exist 
+    const isUserExists = await db.user.findUnique({
+        where:{
+            email
+        }
+    })
+
+    if(isUserExists){
+        throw new Error("user already exist");
+    }
 
     const hashedPassword = await bcrypt.hash(password,10)
     
